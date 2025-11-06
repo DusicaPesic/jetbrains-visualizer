@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { fetchQuestions } from "./services/api";
 import { Question, CategoryCount, DifficultyCount } from "./types";
 import CategoryChart from "./components/CategoryChart";
@@ -42,7 +42,11 @@ function App() {
     setCurrentPage(1);
   }, [selectedCategory]);
 
-  const getCategoryData = (): CategoryCount[] => {
+  const filteredQuestions = selectedCategory
+    ? questions.filter((q) => q.category === selectedCategory)
+    : questions;
+
+  const categoryData = useMemo<CategoryCount[]>(() => {
     const categories = questions.reduce(
       (acc: { [key: string]: number }, question) => {
         acc[question.category] = (acc[question.category] || 0) + 1;
@@ -52,10 +56,10 @@ function App() {
     );
 
     return Object.entries(categories).map(([name, count]) => ({ name, count }));
-  };
+  }, [questions]);
 
-  const getDifficultyData = (): DifficultyCount[] => {
-    const difficulties = questions.reduce(
+  const difficultyData = useMemo<DifficultyCount[]>(() => {
+    const difficulties = filteredQuestions.reduce(
       (acc: { [key: string]: number }, question) => {
         acc[question.difficulty] = (acc[question.difficulty] || 0) + 1;
         return acc;
@@ -67,11 +71,7 @@ function App() {
       name: name.charAt(0).toUpperCase() + name.slice(1),
       count,
     }));
-  };
-
-  const filteredQuestions = selectedCategory
-    ? questions.filter((q) => q.category === selectedCategory)
-    : questions;
+  }, [filteredQuestions]);
 
   if (loading)
     return (
@@ -80,10 +80,33 @@ function App() {
           <h1 className="text-3xl font-bold text-gray-900 mb-4">
             Trivia Questions Visualization
           </h1>
-          <div className="bg-white p-6 rounded-lg shadow">
-            <p className="text-gray-700">
-              Loading questions may take a moment.
-            </p>
+          <div className="bg-white p-6 rounded-lg shadow flex items-center space-x-4">
+            <svg
+              className="animate-spin h-6 w-6 text-indigo-600"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                className="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                strokeWidth="4"
+              />
+              <path
+                className="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+              />
+            </svg>
+            <div>
+              <p className="text-gray-900 font-medium">Loading questions</p>
+              <p className="text-gray-600 text-sm">
+                This may take a moment — thanks for your patience.
+              </p>
+            </div>
           </div>
         </div>
       </div>
@@ -94,46 +117,62 @@ function App() {
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-8">
-          Trivia Questions Visualization
-        </h1>
-
-        <div className="mb-8">
-          <select
-            className="block w-full max-w-md px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-            value={selectedCategory || ""}
-            onChange={(e) => setSelectedCategory(e.target.value || null)}
-          >
-            <option value="">All Categories</option>
-            {getCategoryData().map((category) => (
-              <option key={category.name} value={category.name}>
-                {category.name}
-              </option>
-            ))}
-          </select>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
+          <h1 className="text-3xl font-bold text-gray-900">
+            Trivia Questions Visualization
+          </h1>
+          <div className="mt-4 sm:mt-0">
+            <div className="text-sm text-gray-600"></div>
+          </div>
         </div>
+
+        {/* category select moved into the Category chart card header */}
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           <div className="bg-white p-6 rounded-lg shadow">
-            <h2 className="text-xl font-semibold mb-4">
-              Questions by Category
-            </h2>
-            <CategoryChart data={getCategoryData()} />
+            <div className="mb-4 flex items-center justify-between">
+              <h2 className="text-xl font-semibold">Categories</h2>
+              <div className="ml-4">
+                <label className="sr-only" htmlFor="category-select">
+                  Category
+                </label>
+                <select
+                  id="category-select"
+                  className="block px-3 py-2 border border-gray-300 rounded-md text-sm shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                  value={selectedCategory || ""}
+                  onChange={(e) => setSelectedCategory(e.target.value || null)}
+                >
+                  <option value="">All Categories</option>
+                  {categoryData.map((category) => (
+                    <option key={category.name} value={category.name}>
+                      {category.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+            <CategoryChart data={categoryData} />
           </div>
 
           <div className="bg-white p-6 rounded-lg shadow">
             <h2 className="text-xl font-semibold mb-4">
               Questions by Difficulty
             </h2>
-            <DifficultyChart data={getDifficultyData()} />
+            <DifficultyChart data={difficultyData} />
           </div>
         </div>
 
         <div className="mt-8 bg-white rounded-lg shadow">
-          <div className="px-6 py-4 border-b border-gray-200">
+          <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
             <h2 className="text-xl font-semibold">
-              Questions {selectedCategory ? `in ${selectedCategory}` : ""}
+              Questions {selectedCategory ? `for ${selectedCategory}` : ""}
             </h2>
+            <div className="text-sm text-gray-600">
+              Total:{" "}
+              <span className="font-medium text-gray-900">
+                {filteredQuestions.length}
+              </span>
+            </div>
           </div>
           <ul className="divide-y divide-gray-200">
             {filteredQuestions
@@ -142,9 +181,9 @@ function App() {
                 currentPage * questionsPerPage
               )
               .map((question, index) => (
-                <li key={index} className="px-6 py-4">
+                <li key={index} className="px-6 py-4 hover:bg-gray-50">
                   <div className="flex items-start">
-                    <span className="inline-flex items-center justify-center h-6 w-6 rounded-full bg-indigo-100 text-indigo-800 text-sm font-medium mr-3">
+                    <span className="inline-flex items-center justify-center h-5 w-5 rounded-full bg-indigo-100 text-indigo-800 text-xs font-medium mr-3">
                       {(currentPage - 1) * questionsPerPage + index + 1}
                     </span>
                     <div>

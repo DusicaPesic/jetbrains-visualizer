@@ -33,7 +33,7 @@ const CategoryChart: React.FC<Props> = ({ data }) => {
           />
           <YAxis />
           <Tooltip />
-          <Bar dataKey="count" fill="#4F46E5" />
+          <Bar dataKey="count" fill="#4F46E5" isAnimationActive={false} />
         </BarChart>
       </ResponsiveContainer>
     </div>

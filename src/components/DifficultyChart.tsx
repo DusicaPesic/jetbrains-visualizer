@@ -34,6 +34,7 @@ const DifficultyChart: React.FC<Props> = ({ data }) => {
             fill="#8884d8"
             dataKey="count"
             nameKey="name"
+            isAnimationActive={false}
             label={({ name, value, percent }: any) =>
               `${name} (${(percent * 100).toFixed(0)}%)`
             }
