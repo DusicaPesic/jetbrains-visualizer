@@ -6,6 +6,12 @@ import DifficultyChart from "./components/DifficultyChart";
 import "./App.css";
 import { DIFFICULTY_COLORS } from "./constants/colors";
 
+const DIFFICULTY_ORDER: Record<string, number> = {
+  easy: 1,
+  medium: 2,
+  hard: 3,
+};
+
 function App() {
   const [questions, setQuestions] = useState<Question[]>([]);
   const [loading, setLoading] = useState(true);
@@ -13,11 +19,14 @@ function App() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageInput, setPageInput] = useState("");
+  const [sortOrder, setSortOrder] = useState<
+    "none" | "easyToHard" | "hardToEasy"
+  >("none");
   const questionsPerPage = 5;
 
   const handlePageJump = () => {
     const pageNumber = parseInt(pageInput);
-    const maxPage = Math.ceil(filteredQuestions.length / questionsPerPage);
+    const maxPage = Math.ceil(sortedQuestions.length / questionsPerPage);
     if (!isNaN(pageNumber) && pageNumber >= 1 && pageNumber <= maxPage) {
       setCurrentPage(pageNumber);
       setPageInput("");
@@ -27,7 +36,7 @@ function App() {
   useEffect(() => {
     const loadQuestions = async () => {
       try {
-        const response = await fetchQuestions(60);
+        const response = await fetchQuestions(70);
         setQuestions(response.results);
       } catch (err) {
         setError("Failed to fetch questions");
@@ -43,6 +52,16 @@ function App() {
   const filteredQuestions = selectedCategory
     ? questions.filter((q) => q.category === selectedCategory)
     : questions;
+
+  const sortedQuestions = useMemo(() => {
+    if (sortOrder === "none") return filteredQuestions;
+
+    return [...filteredQuestions].sort((a, b) => {
+      const diffA = DIFFICULTY_ORDER[a.difficulty];
+      const diffB = DIFFICULTY_ORDER[b.difficulty];
+      return sortOrder === "easyToHard" ? diffA - diffB : diffB - diffA;
+    });
+  }, [filteredQuestions, sortOrder]);
 
   const categoryData = useMemo<CategoryCount[]>(() => {
     const categories = questions.reduce(
@@ -149,7 +168,7 @@ function App() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
         <header className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
           <h1 className="text-3xl font-bold text-gray-900 tracking-tight">
-            Trivia Questions Dashboard
+            Trivia Questions Visualizer
           </h1>
         </header>
 
@@ -190,22 +209,45 @@ function App() {
         </div>
 
         <div className="bg-white rounded-xl shadow-sm">
-          <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+          <div className="px-6 py-4 border-b border-gray-100 flex flex-wrap items-center justify-between gap-3">
             <h2 className="text-lg font-semibold text-gray-800">
               {selectedCategory
                 ? `Questions for ${selectedCategory}`
                 : "All Questions"}
             </h2>
-            <span className="text-sm text-gray-500">
-              Total:{" "}
-              <span className="font-medium text-gray-800">
-                {filteredQuestions.length}
+
+            <div className="flex items-center gap-4">
+              <span className="text-sm text-gray-500">
+                Total:{" "}
+                <span className="font-medium text-gray-800">
+                  {sortedQuestions.length}
+                </span>
               </span>
-            </span>
+
+              <div className="flex items-center gap-2">
+                <label htmlFor="sort" className="text-sm text-gray-600">
+                  Sort:
+                </label>
+                <select
+                  id="sort"
+                  value={sortOrder}
+                  onChange={(e) =>
+                    setSortOrder(
+                      e.target.value as "none" | "easyToHard" | "hardToEasy"
+                    )
+                  }
+                  className="border border-gray-300 rounded-md text-sm px-2 py-1 focus:ring-indigo-500 focus:border-indigo-500"
+                >
+                  <option value="none">None</option>
+                  <option value="easyToHard">Easy → Hard</option>
+                  <option value="hardToEasy">Hard → Easy</option>
+                </select>
+              </div>
+            </div>
           </div>
 
           <ul className="divide-y divide-gray-100">
-            {filteredQuestions
+            {sortedQuestions
               .slice(
                 (currentPage - 1) * questionsPerPage,
                 currentPage * questionsPerPage
@@ -262,13 +304,13 @@ function App() {
             <div className="flex items-center space-x-4 text-sm text-gray-700">
               <span>
                 Page {currentPage} of{" "}
-                {Math.ceil(filteredQuestions.length / questionsPerPage)}
+                {Math.ceil(sortedQuestions.length / questionsPerPage)}
               </span>
               <div className="flex items-center space-x-2">
                 <input
                   type="number"
                   min="1"
-                  max={Math.ceil(filteredQuestions.length / questionsPerPage)}
+                  max={Math.ceil(sortedQuestions.length / questionsPerPage)}
                   value={pageInput}
                   onChange={(e) => setPageInput(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && handlePageJump()}
@@ -289,17 +331,17 @@ function App() {
                 setCurrentPage((prev) =>
                   Math.min(
                     prev + 1,
-                    Math.ceil(filteredQuestions.length / questionsPerPage)
+                    Math.ceil(sortedQuestions.length / questionsPerPage)
                   )
                 )
               }
               disabled={
                 currentPage >=
-                Math.ceil(filteredQuestions.length / questionsPerPage)
+                Math.ceil(sortedQuestions.length / questionsPerPage)
               }
               className={`px-4 py-2 rounded-md text-sm font-medium border transition-colors
     ${
-      currentPage >= Math.ceil(filteredQuestions.length / questionsPerPage)
+      currentPage >= Math.ceil(sortedQuestions.length / questionsPerPage)
         ? "bg-gray-100 text-gray-400 cursor-default opacity-70"
         : "bg-white text-gray-700 border-gray-300 hover:bg-gray-100"
     }`}
