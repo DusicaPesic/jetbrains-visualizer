@@ -12,14 +12,15 @@ import { CategoryCount } from "../types";
 
 interface Props {
   data: CategoryCount[];
+  onCategorySelect?: (category: string) => void;
 }
 
-const CategoryChart: React.FC<Props> = ({ data }) => {
+const CategoryChart: React.FC<Props> = ({ data, onCategorySelect }) => {
   const [hoveredData, setHoveredData] = useState<CategoryCount | null>(null);
   const hideTimeout = useRef<NodeJS.Timeout | null>(null);
 
   return (
-    <div className="h-96 w-full relative">
+    <div className="h-96 w-full relative outline-none focus:outline-none">
       <ResponsiveContainer width="100%" height="100%">
         <BarChart
           data={data}
@@ -51,7 +52,18 @@ const CategoryChart: React.FC<Props> = ({ data }) => {
               return null;
             }}
           />
-          <Bar dataKey="count" fill="#4F46E5" isAnimationActive={false} />
+          <Bar
+            dataKey="count"
+            fill="#6366f1"
+            isAnimationActive={false}
+            onClick={(data: any) => {
+              const categoryName = data?.name;
+              if (categoryName === "Other") return;
+              if (categoryName && onCategorySelect) {
+                onCategorySelect(categoryName);
+              }
+            }}
+          />
         </BarChart>
       </ResponsiveContainer>
 
@@ -74,7 +86,11 @@ const CategoryChart: React.FC<Props> = ({ data }) => {
           {hoveredData.name === "Other" && hoveredData.otherCategories ? (
             <div className="max-h-[300px] overflow-y-auto pr-4">
               {hoveredData.otherCategories.map((cat, i) => (
-                <div key={i} className="flex justify-between gap-4 py-1">
+                <div
+                  key={i}
+                  className="flex justify-between gap-4 py-1"
+                  onClick={() => onCategorySelect?.(cat.name)}
+                >
                   <span>{cat.name}:</span>
                   <span className="text-indigo-600 font-medium">
                     {cat.count}

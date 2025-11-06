@@ -88,6 +88,20 @@ function App() {
     return topCategories;
   }, [questions]);
 
+  const allCategories = useMemo(() => {
+    const flattened: CategoryCount[] = [];
+
+    categoryData.forEach((cat) => {
+      if (cat.name === "Other" && cat.otherCategories) {
+        flattened.push(...cat.otherCategories);
+      } else {
+        flattened.push(cat);
+      }
+    });
+
+    return flattened;
+  }, [categoryData]);
+
   const difficultyData = useMemo<DifficultyCount[]>(() => {
     const difficulties = filteredQuestions.reduce(
       (acc: { [key: string]: number }, question) => {
@@ -134,7 +148,7 @@ function App() {
             <div>
               <p className="text-gray-900 font-medium">Loading questions</p>
               <p className="text-gray-600 text-sm">
-                This may take a moment — thanks for your patience.
+                This may take a moment, thanks for your patience.
               </p>
             </div>
           </div>
@@ -156,8 +170,6 @@ function App() {
           </div>
         </div>
 
-        {/* category select moved into the Category chart card header */}
-
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           <div className="bg-white p-6 rounded-lg shadow">
             <div className="mb-4 flex items-center justify-between">
@@ -173,7 +185,7 @@ function App() {
                   onChange={(e) => setSelectedCategory(e.target.value || null)}
                 >
                   <option value="">All Categories</option>
-                  {categoryData.map((category) => (
+                  {allCategories.map((category) => (
                     <option key={category.name} value={category.name}>
                       {category.name}
                     </option>
@@ -181,7 +193,10 @@ function App() {
                 </select>
               </div>
             </div>
-            <CategoryChart data={categoryData} />
+            <CategoryChart
+              data={categoryData}
+              onCategorySelect={(category) => setSelectedCategory(category)}
+            />
           </div>
 
           <div className="bg-white p-6 rounded-lg shadow">
