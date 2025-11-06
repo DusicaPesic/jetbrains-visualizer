@@ -164,7 +164,7 @@ function App() {
     return <div className="text-red-500 text-center mt-8">{error}</div>;
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 py-8">
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 py-8 overflow-x-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
         <header className="bg-white shadow-sm rounded-xl px-6 py-4 flex items-center justify-between">
           <h1 className="text-2xl sm:text-3xl font-bold text-indigo-700 tracking-tight">
@@ -174,25 +174,27 @@ function App() {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           <div className="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow">
-            <div className="mb-5 flex items-center justify-between pb-3">
-              <h2 className="text-lg font-semibold text-gray-800">
-                Questions by Category
-              </h2>
-              <select
-                id="category-select"
-                className={`block px-3 py-2 border rounded-md text-sm shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 transition
-  ${selectedCategory ? "border-indigo-400" : "border-gray-300"}
+            <div className="mb-5 flex flex-col md:flex-row md:items-center md:justify-between gap-3 pb-3">
+              <div className="mb-5 flex flex-col sm:flex-row sm:items-center sm:justify-between pb-3 gap-3">
+                <h2 className="text-lg font-semibold text-gray-800">
+                  Questions by Category
+                </h2>
+                <select
+                  id="category-select"
+                  className={`w-full sm:w-auto px-3 py-2 sm:ml-2 border rounded-md text-sm shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 transition
+${selectedCategory ? "border-indigo-400" : "border-gray-300"}
 `}
-                value={selectedCategory || ""}
-                onChange={(e) => setSelectedCategory(e.target.value || null)}
-              >
-                <option value="">All Categories</option>
-                {allCategories.map((category) => (
-                  <option key={category.name} value={category.name}>
-                    {category.name}
-                  </option>
-                ))}
-              </select>
+                  value={selectedCategory || ""}
+                  onChange={(e) => setSelectedCategory(e.target.value || null)}
+                >
+                  <option value="">All Categories</option>
+                  {allCategories.map((category) => (
+                    <option key={category.name} value={category.name}>
+                      {category.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
             <CategoryChart
               data={categoryData}
@@ -287,67 +289,70 @@ function App() {
               ))}
           </ul>
 
-          <div className="px-6 py-4 border-t border-gray-100 flex items-center justify-between bg-gray-50 rounded-b-xl">
-            <button
-              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-              disabled={currentPage === 1}
-              className={`px-4 py-2 rounded-md text-sm font-medium border transition-colors
-    ${
-      currentPage === 1
-        ? "bg-gray-100 text-gray-400 cursor-default"
-        : "bg-white text-gray-700 border-gray-300 hover:bg-gray-100"
-    }`}
-            >
-              Previous
-            </button>
+          <div className="px-6 py-4 border-t border-gray-100 bg-gray-50 rounded-b-xl">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+              <button
+                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                disabled={currentPage === 1}
+                className={`px-4 py-2 rounded-md text-sm font-medium border transition-colors
+        ${
+          currentPage === 1
+            ? "bg-gray-100 text-gray-400 cursor-default"
+            : "bg-white text-gray-700 border-gray-300 hover:bg-gray-100"
+        }`}
+              >
+                Previous
+              </button>
 
-            <div className="flex items-center space-x-4 text-sm text-gray-700">
-              <span>
-                Page {currentPage} of{" "}
-                {Math.ceil(sortedQuestions.length / questionsPerPage)}
-              </span>
-              <div className="flex items-center space-x-2">
-                <input
-                  type="number"
-                  min="1"
-                  max={Math.ceil(sortedQuestions.length / questionsPerPage)}
-                  value={pageInput}
-                  onChange={(e) => setPageInput(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && handlePageJump()}
-                  className="w-16 px-2 py-1 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:outline-none"
-                  placeholder="Page"
-                />
-                <button
-                  onClick={handlePageJump}
-                  className="px-3 py-1 rounded-md border border-gray-300 bg-white text-gray-700 text-sm font-medium hover:bg-gray-100 transition"
-                >
-                  Go
-                </button>
+              <div className="flex flex-col sm:flex-row items-center gap-2 text-sm text-gray-700">
+                <span className="text-center">
+                  Page {currentPage} of{" "}
+                  {Math.ceil(sortedQuestions.length / questionsPerPage)}
+                </span>
+
+                <div className="flex items-center gap-2">
+                  <input
+                    type="number"
+                    min="1"
+                    max={Math.ceil(sortedQuestions.length / questionsPerPage)}
+                    value={pageInput}
+                    onChange={(e) => setPageInput(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && handlePageJump()}
+                    className="w-20 px-2 py-1 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                    placeholder="Page"
+                  />
+                  <button
+                    onClick={handlePageJump}
+                    className="px-3 py-1 rounded-md border border-gray-300 bg-white text-gray-700 text-sm font-medium hover:bg-gray-100 transition"
+                  >
+                    Go
+                  </button>
+                </div>
               </div>
-            </div>
 
-            <button
-              onClick={() =>
-                setCurrentPage((prev) =>
-                  Math.min(
-                    prev + 1,
-                    Math.ceil(sortedQuestions.length / questionsPerPage)
+              <button
+                onClick={() =>
+                  setCurrentPage((prev) =>
+                    Math.min(
+                      prev + 1,
+                      Math.ceil(sortedQuestions.length / questionsPerPage)
+                    )
                   )
-                )
-              }
-              disabled={
-                currentPage >=
-                Math.ceil(sortedQuestions.length / questionsPerPage)
-              }
-              className={`px-4 py-2 rounded-md text-sm font-medium border transition-colors
-    ${
-      currentPage >= Math.ceil(sortedQuestions.length / questionsPerPage)
-        ? "bg-gray-100 text-gray-400 cursor-default opacity-70"
-        : "bg-white text-gray-700 border-gray-300 hover:bg-gray-100"
-    }`}
-            >
-              Next
-            </button>
+                }
+                disabled={
+                  currentPage >=
+                  Math.ceil(sortedQuestions.length / questionsPerPage)
+                }
+                className={`px-4 py-2 rounded-md text-sm font-medium border transition-colors
+        ${
+          currentPage >= Math.ceil(sortedQuestions.length / questionsPerPage)
+            ? "bg-gray-100 text-gray-400 cursor-default opacity-70"
+            : "bg-white text-gray-700 border-gray-300 hover:bg-gray-100"
+        }`}
+              >
+                Next
+              </button>
+            </div>
           </div>
         </div>
       </div>
