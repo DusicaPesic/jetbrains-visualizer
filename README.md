@@ -1,6 +1,35 @@
-# Getting Started with Create React App
+# Trivia Question Visualizer
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A React application that visualizes data from the Open Trivia DB API.
+
+## Features
+
+- View questions by category
+- See distribution of questions across categories
+- See distribution of questions by difficulty
+- Filter questions by category
+- Interactive charts using Recharts
+- Clean and responsive UI using Tailwind CSS
+
+## Setup
+
+1. Clone the repository
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+3. Start the development server:
+   ```bash
+   npm start
+   ```
+
+## Technologies Used
+
+- React
+- TypeScript
+- Recharts
+- Tailwind CSS
+- Axios
 
 ## Available Scripts
 
