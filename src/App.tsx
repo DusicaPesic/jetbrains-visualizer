@@ -55,7 +55,37 @@ function App() {
       {}
     );
 
-    return Object.entries(categories).map(([name, count]) => ({ name, count }));
+    const sortedCategories = Object.entries(categories).sort(
+      (a, b) => b[1] - a[1]
+    );
+
+    const topCategories: CategoryCount[] = sortedCategories
+      .slice(0, 10)
+      .map(([name, count]) => ({
+        name,
+        count,
+      }));
+
+    if (sortedCategories.length > 10) {
+      const otherCategories = sortedCategories
+        .slice(10)
+        .map(([name, count]) => ({ name, count }));
+
+      const otherCount = otherCategories.reduce(
+        (sum, cat) => sum + cat.count,
+        0
+      );
+
+      const otherCategory: CategoryCount = {
+        name: "Other",
+        count: otherCount,
+        otherCategories: otherCategories,
+      };
+
+      topCategories.push(otherCategory);
+    }
+
+    return topCategories;
   }, [questions]);
 
   const difficultyData = useMemo<DifficultyCount[]>(() => {
@@ -193,7 +223,15 @@ function App() {
                       />
                       <p className="mt-1 text-sm text-gray-500">
                         Difficulty:{" "}
-                        <span className="capitalize">
+                        <span
+                          className={`capitalize ${
+                            question.difficulty === "easy"
+                              ? "text-green-600"
+                              : question.difficulty === "medium"
+                              ? "text-yellow-600"
+                              : "text-red-600"
+                          }`}
+                        >
                           {question.difficulty}
                         </span>
                       </p>

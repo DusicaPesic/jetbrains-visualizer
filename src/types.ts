@@ -10,6 +10,7 @@ export interface Question {
 export interface CategoryCount {
   name: string;
   count: number;
+  otherCategories?: { name: string; count: number }[];
 }
 
 export interface DifficultyCount {
