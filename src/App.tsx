@@ -166,8 +166,8 @@ function App() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
-        <header className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-          <h1 className="text-3xl font-bold text-gray-900 tracking-tight">
+        <header className="bg-white shadow-sm rounded-xl px-6 py-4 flex items-center justify-between">
+          <h1 className="text-2xl sm:text-3xl font-bold text-indigo-700 tracking-tight">
             Trivia Questions Visualizer
           </h1>
         </header>
