@@ -236,7 +236,7 @@ function App() {
                       e.target.value as "none" | "easyToHard" | "hardToEasy"
                     )
                   }
-                  className="border border-gray-300 rounded-md text-sm px-2 py-1 focus:ring-indigo-500 focus:border-indigo-500"
+                  className="block px-3 py-1 border rounded-md text-sm shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 transition border-gray-300"
                 >
                   <option value="none">None</option>
                   <option value="easyToHard">Easy → Hard</option>
