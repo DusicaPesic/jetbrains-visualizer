@@ -20,6 +20,20 @@ type ChartData = {
 
 const COLORS = ["#10B981", "#F59E0B", "#EF4444"];
 
+const CustomTooltip = ({ active, payload }: any) => {
+  if (active && payload && payload.length > 0) {
+    const item = payload[0].payload as DifficultyCount;
+    return (
+      <div className="bg-white px-3 py-2 shadow-lg rounded-lg border border-gray-200">
+        <p className="text-gray-800 font-medium">
+          {item.name}:{" "}
+          <span className="text-indigo-600 font-semibold">{item.count}</span>
+        </p>
+      </div>
+    );
+  }
+  return null;
+};
 const DifficultyChart: React.FC<Props> = ({ data }) => {
   return (
     <div className="h-96 w-full">
@@ -46,7 +60,10 @@ const DifficultyChart: React.FC<Props> = ({ data }) => {
               />
             ))}
           </Pie>
-          <Tooltip />
+          <Tooltip
+            cursor={{ fill: "transparent" }}
+            content={<CustomTooltip />}
+          />
           <Legend />
         </PieChart>
       </ResponsiveContainer>
