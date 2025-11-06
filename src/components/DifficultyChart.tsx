@@ -1,7 +1,7 @@
 import React from "react";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
 import { DifficultyCount } from "../types";
-
+import { DIFFICULTY_COLORS } from "../constants/colors";
 interface Props {
   data: DifficultyCount[];
 }
@@ -10,12 +10,6 @@ type ChartData = {
   [key: string]: string | number;
   name: string;
   count: number;
-};
-
-const DIFFICULTY_COLORS: Record<string, string> = {
-  Easy: "#34d399",
-  Medium: "#fbbf24",
-  Hard: "#f87171",
 };
 
 const CustomTooltip = ({ active, payload }: any) => {

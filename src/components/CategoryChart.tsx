@@ -54,7 +54,7 @@ const CategoryChart: React.FC<Props> = ({ data, onCategorySelect }) => {
           />
           <Bar
             dataKey="count"
-            fill="#6366f1"
+            fill="#5B5FF0"
             isAnimationActive={false}
             onClick={(data: any) => {
               const categoryName = data?.name;
